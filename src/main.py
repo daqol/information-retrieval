@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
     index = InvertedIndex()
 
-    directory = 'documents'
+    directory = 'documents_demo'
 
     for (dirname, _, filenames) in os.walk(directory):
         for filename in filenames:
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     # index.read_document(d)
     print('Let\'s go team!')
     print(index.index.items())
-    result = index.processquery_boolean("hurricane AND NOT Katrina AND cycLone")
+    result = index.processquery_vector("κομήτης Χάλλεϋ")
     print("\nResults:")
     for d in result:
         print(d)

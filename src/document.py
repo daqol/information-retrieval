@@ -3,6 +3,7 @@ import re
 import urllib.request
 from abc import abstractmethod
 from collections import Counter
+import math
 
 import html2text
 from stemming.porter2 import stem
@@ -53,6 +54,8 @@ class Document:
         self.name = name
         self.location = location
 
+        self.L_d = 0
+
     def __str__(self):
         return self.name
 
@@ -74,10 +77,21 @@ class Document:
 
     def tokenize(self):
         """
-        Tokenizes Document text. Text is preprocessed by :func:`textpreprocess`:
+        Tokenizes Document text. Text is preprocessed by :func:`textpreprocess`. After the call of this method object
+        will also has property L_d, which is the norm of vector of w as is in [chapter4-vector.pdf page 14].
         :return: dict with each term in document as a key and its number of appearances as value
         """
-        return Counter(textpreprocess(self.read()))
+        ans = Counter(textpreprocess(self.read()))
+
+        l_d = 0
+        for v in ans.values():
+            if v == 1:
+                l_d += 1
+            else:
+                l_d += (1 + math.log(v))**2
+        self.L_d = math.sqrt(l_d)
+
+        return ans
 
 
 class LocalDocument(Document):

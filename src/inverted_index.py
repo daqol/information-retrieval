@@ -1,4 +1,8 @@
+import heapq
 from collections import defaultdict
+import operator
+
+import math
 
 from src.boolean_expression_parse import BooleanExpressionParser
 from src.document import textpreprocess
@@ -43,4 +47,27 @@ class InvertedIndex:
 
         return bparser.eval_query(newq)
 
+    def processquery_vector(self, q):
+
+        q_tokens = textpreprocess(q)
+
+        # Check if all terms of query are in our collection
+        for token in q_tokens:
+            if token not in self.index:
+                raise Exception(token + " does not exist in our collection.")
+
+        # idf = [math.log(1 + len(self.index) / len(self.index[token])) for token in q_tokens]
+
+        S = defaultdict(float)
+
+        for term in q_tokens:
+            idf_t = math.log(1 + len(self.documents) / len(self.index[term]))
+
+            for d, v in self.index[term].items():
+                S[d] += v * idf_t
+
+        for d, v in S.items():
+            S[d] /= d.L_d
+
+        return heapq.nlargest(3, S.items(), key=operator.itemgetter(1))
 
