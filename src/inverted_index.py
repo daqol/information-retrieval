@@ -1,7 +1,7 @@
 from collections import defaultdict
 
-from boolean_expression_parse import BooleanExpressionParser
-from document import textpreprocess
+from src.boolean_expression_parse import BooleanExpressionParser
+from src.document import textpreprocess
 
 
 class InvertedIndex:
