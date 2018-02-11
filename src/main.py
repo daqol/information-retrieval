@@ -4,7 +4,7 @@ from collections import Set, Mapping, deque
 from numbers import Number
 
 from src.document import LocalDocument
-from src.inverted_index import InvertedIndex
+from src.collection import Collection
 
 zero_depth_bases = (str, bytes, Number, range, bytearray)
 iteritems = 'items'
@@ -35,7 +35,7 @@ def getsize(obj_0):
 
 if __name__ == '__main__':
 
-    index = InvertedIndex()
+    index = Collection()
 
     directory = 'documents_demo'
 

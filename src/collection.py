@@ -1,17 +1,24 @@
 import heapq
-from collections import defaultdict
-import operator
-
 import math
+import operator
+from collections import defaultdict
 
 from src.boolean_expression_parse import BooleanExpressionParser
 from src.document import textpreprocess
 
 
-class InvertedIndex:
-
+class InvertedIndex(defaultdict):
     def __init__(self):
-        self.index = defaultdict(dict)
+        super().__init__(dict)
+
+    def add_document(self, d):
+        for term, count in d.tokenize().items():
+            self[term][d] = count
+
+
+class Collection:
+    def __init__(self):
+        self.index = InvertedIndex()
         self.documents = set()
 
     def read_document(self, d):
@@ -21,9 +28,7 @@ class InvertedIndex:
         :return:
         """
         self.documents.add(d)
-
-        for term, count in d.tokenize().items():
-            self.index[term][d] = count
+        self.index.add_document(d)
 
     def processquery_boolean(self, q):
         """

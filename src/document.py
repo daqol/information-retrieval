@@ -1,9 +1,9 @@
 import io
+import math
 import re
 import urllib.request
 from abc import abstractmethod
 from collections import Counter
-import math
 
 import html2text
 from stemming.porter2 import stem
