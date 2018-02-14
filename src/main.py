@@ -1,8 +1,12 @@
+# -*- coding: utf-8 -*-
+
 import os
 import sys
 from collections import Set, Mapping, deque
 from numbers import Number
 
+#from collection import Collection
+#from document import LocalDocument
 from src.collection import Collection
 from src.document import LocalDocument
 
@@ -37,11 +41,11 @@ if __name__ == '__main__':
 
     index = Collection()
 
-    directory = 'documents_demo'
+    directory = 'documents'
 
     for (dirname, _, filenames) in os.walk(directory):
         for filename in filenames:
-            d = LocalDocument(filename, os.path.join(dirname, filename))
+            d = LocalDocument(os.path.join(dirname, filename))
             index.read_document(d)
 
     # d = WebDocument('web', 'http://www.csd.auth.gr/el/')
@@ -49,7 +53,8 @@ if __name__ == '__main__':
     # index.read_document(d)
     print('Let\'s go team!')
     print(index.index.items())
-    result = index.processquery_vector("κομήτης Χάλλεϋ")
+    #result = index.processquery_vector("κομήτης Χάλλεϋ")
+    result = index.processquery_boolean("Tropical AND (Katarina OR Precursor)")
     print("\nResults:")
     for d in result:
         print(d)

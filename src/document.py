@@ -6,7 +6,7 @@ from abc import abstractmethod
 from collections import Counter
 
 import chardet
-from html2text import html2text
+# from html2text import html2text
 
 from bs4 import BeautifulSoup, SoupStrainer
 from stemming.porter2 import stem
@@ -157,7 +157,8 @@ class WebDocument(Document):
         return BeautifulSoup(req, "lxml", parse_only=parse_only) if req.headers.get_content_type() == 'text/html' else None
 
     def read(self):
-        return self.get_soup().get_text()
+        soup = self.get_soup()
+        return soup.get_text() if soup else None
         # return html2text(get_unicode_text(self.open()))
 
 

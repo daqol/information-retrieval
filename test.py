@@ -79,8 +79,8 @@ class Webcrawler:
 
 if __name__ == '__main__':
     c = Webcrawler()
-    # c.addlink('http://datalab.csd.auth.gr/%7Egounaris/courses/dwdm/index.html')
-    c.addlink('http://quotes.toscrape.com')
+    c.addlink('http://datalab.csd.auth.gr/%7Egounaris/courses/dwdm/index.html')
+    # c.addlink('http://quotes.toscrape.com')
     c.crawl()
     print(c.getlinks())
 

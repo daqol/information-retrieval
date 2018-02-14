@@ -2,9 +2,12 @@ import re
 import sys
 from urllib.error import HTTPError
 from urllib.parse import urljoin
+import threading
 
-from src.document import WebDocument
-from src.collection import Collection
+from document import WebDocument
+from collection import Collection
+# from src.document import WebDocument
+# from src.collection import Collection
 from bs4 import SoupStrainer
 
 RE_LINKSPLIT = re.compile(r"[?#]")
@@ -54,7 +57,9 @@ class Webcrawler:
                             else:
                                 self.addlink(urljoin(webdoc.location, l))
                         if collection:
-                            collection.read_document(webdoc)
+                            # collection.read_document(webdoc)
+                            threading.Thread(target=collection.read_document(webdoc)).start()
+                            print('Continue')
                         self.markvisited(link)
                     else:
                         self.markbad(link)
@@ -78,7 +83,7 @@ if __name__ == '__main__':
     c = Webcrawler()
     # c.addlink('http://datalab.csd.auth.gr/%7Egounaris/courses/dwdm/index.html')
     c.addlink('http://snf-1510.ok-kno.grnetcloud.net/rick-and-morty-website/')
-    c.crawl(collection=collection, maxdepth=1)
+    c.crawl(collection=collection, maxdepth=-1)
     # c.crawl(maxdepth=1)
     #"""
     result = collection.processquery_vector("cut short", top=10)

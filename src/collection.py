@@ -3,8 +3,10 @@ import math
 import operator
 from collections import defaultdict
 
-from src.boolean_expression_parse import BooleanExpressionParser
-from src.document import textpreprocess
+from boolean_expression_parse import BooleanExpressionParser
+from document import textpreprocess
+# from src.boolean_expression_parse import BooleanExpressionParser
+# from src.document import textpreprocess
 
 
 class InvertedIndex(defaultdict):
@@ -30,6 +32,7 @@ class Collection:
         if d not in self.documents:
             self.documents.add(d)
             self.index.add_document(d)
+            print("Read it", flush=True)
 
     def processquery_boolean(self, q):
         """
