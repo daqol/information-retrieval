@@ -3,8 +3,8 @@ import sys
 from collections import Set, Mapping, deque
 from numbers import Number
 
-from src.document import LocalDocument
 from src.collection import Collection
+from src.document import LocalDocument
 
 zero_depth_bases = (str, bytes, Number, range, bytearray)
 iteritems = 'items'

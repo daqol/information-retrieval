@@ -5,12 +5,33 @@ import urllib.request
 from abc import abstractmethod
 from collections import Counter
 
-import html2text
+import chardet
+from html2text import html2text
+
+from bs4 import BeautifulSoup, SoupStrainer
 from stemming.porter2 import stem
+
 
 RE_LINKS = re.compile(r'https?\S+')
 RE_NONALPHABETIC = re.compile(r'[^ \w-]+')
 
+"""
+RE_CHARSET = re.compile(r"<head>.*?charset=\"?[\w-]+")
+def get_unicode_text(request):
+
+    bytetext = request.read()
+
+    # get encoding. First choice <meta> tag charset field in html. Second choice server response header. Fallback: utf-8
+    # m = RE_CHARSET.search(text)
+    encoding = request.headers.get_content_charset()
+    if not encoding:
+        encoding = chardet.detect(bytetext)['encoding']
+    # encoding = chardet.detect(bytetext)['encoding']
+
+    # decode response text based on right encoding and return unicode string
+    decodedtext = bytetext.decode(encoding)
+    return decodedtext # if encoding == 'utf-8' else decodedtext.encode('utf-8')
+"""
 
 stopwords = {"i","me","my","myself","we","our","ours","ourselves","you",
                  "your","yours","yourself","yourselves","he","him","his","himself",
@@ -50,14 +71,20 @@ class Document:
     Document Base Class
     """
 
-    def __int__(self, name, location):
-        self.name = name
+    def __int__(self, location):
         self.location = location
-
         self.L_d = 0
 
     def __str__(self):
-        return self.name
+        return self.location
+
+    def __eq__(self, other):
+        if isinstance(self, other.__class__):
+            return self.location == other.location
+        return NotImplemented
+
+    def __hash__(self):
+        return hash(tuple(sorted(self.__dict__.items())))
 
     @abstractmethod
     def open(self):
@@ -98,8 +125,11 @@ class LocalDocument(Document):
     """
     Document that is stored locally as a file
     """
-    def __init__(self, name, location):
-        super().__int__(name, location)
+    def __init__(self, location):
+        super().__int__(location)
+
+    def __str__(self):
+        return self.location.rsplit('/', 1)[1]
 
     def open(self):
         return io.open(self.location, "r", encoding="utf-8")
@@ -112,15 +142,31 @@ class LocalDocument(Document):
 
 class WebDocument(Document):
     """
-    Document in the Web
+    HTML Document in the Web
     """
-    def __init__(self, name, location):
-        super().__int__(name, location)
+    def __init__(self, location):
+        super().__int__(location)
 
     def open(self):
-        return urllib.request.urlopen(self.location)
+        req = urllib.request.urlopen(self.location)
+        self.location = req.geturl()  # in case we were redirected
+        return req
+
+    def get_soup(self, parse_only=None):
+        req = self.open()
+        return BeautifulSoup(req, "lxml", parse_only=parse_only) if req.headers.get_content_type() == 'text/html' else None
 
     def read(self):
-        with self.open() as f:
-            text = f.read().decode('utf-8')
-        return html2text.html2text(text)
+        return self.get_soup().get_text()
+        # return html2text(get_unicode_text(self.open()))
+
+
+"""
+    def persist(self):
+        # Enables cache. Creates and stores BeatifulSoup object if it's not already cached 
+        self.soup = self.get_soup()
+
+    def unpersist(self):
+        # Disables cache and deletes stored text. 
+        del self.soup
+"""

@@ -27,8 +27,9 @@ class Collection:
         :param d:
         :return:
         """
-        self.documents.add(d)
-        self.index.add_document(d)
+        if d not in self.documents:
+            self.documents.add(d)
+            self.index.add_document(d)
 
     def processquery_boolean(self, q):
         """
@@ -52,7 +53,7 @@ class Collection:
 
         return bparser.eval_query(newq)
 
-    def processquery_vector(self, q):
+    def processquery_vector(self, q, top=10):
 
         q_tokens = textpreprocess(q)
 
@@ -74,5 +75,5 @@ class Collection:
         for d, v in S.items():
             S[d] /= d.L_d
 
-        return heapq.nlargest(3, S.items(), key=operator.itemgetter(1))
+        return heapq.nlargest(top, S.items(), key=operator.itemgetter(1))
 
