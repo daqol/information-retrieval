@@ -15,16 +15,20 @@ class InvertedIndex(defaultdict):
         super().__init__(dict)
 
     def add_document(self, d):
-        #print("------>>>>>>" + str(type(d)))
+        # call tokenize method so we have now the L_d value
         for term, count in d.tokenize().items():
             self[term][d] = count
+            print(d)
+            print(term)
+            print(count)
             #self[term][str(d)] = count # -> problem with vector S[d] /= d.L_d
 
 
 class Collection:
     def __init__(self):
         self.index = InvertedIndex()
-        self.documents = set()
+        self.documents = set() #?? need the structure of a dict
+        self.documents_dictsyle = dict()
 
     def read_document(self, d):
         """
@@ -33,6 +37,7 @@ class Collection:
         :return:
         """
         if d not in self.documents:
+            # documents_dictstyle what value to append?
             self.documents.add(d)
             self.index.add_document(d)
             print("Read it: " + str(d), flush=True)

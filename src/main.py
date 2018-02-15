@@ -61,29 +61,30 @@ if __name__ == '__main__':
 
     ###MongoDB###
 
-    client = MongoClient('mongodb://localhost:27017/')
-    db = client.test_irproject
-    collection = db.inverted_index_collection
+    #client = MongoClient('mongodb://localhost:27017/')
+    #db = client.test_irproject
+    #collection = db.inverted_index_collection
     #collection.insert(index.index)
 
 
     #print(index.documents)
 
-    for key, value in index.index.items():
-        for key2, value2 in value.items():
-            post = {key: {str(key2).replace(".","-") : value2 }}
-            post_id = collection.insert_one(post).inserted_id
-            print(post)
+    #for key, value in index.index.items():
+    #    print(key)
+    #    for key2, value2 in value.items():
+    #       print(key2)
+
+
+            #post = {key: {str(key2).replace(".","-") : value2 }}
+            #post_id = collection.insert_one(post).inserted_id
+            #print(post)
             #if str(key2) == 'd1.txt':
             #    print("Yeap")
 
-        
 
-    a = list(index.index.items())
-    print(a[0][1].keys())
 
-    #for i in a:
-    #    print(i)
+    #a = list(index.index.items())
+    #print(a[0][1].keys())
 
 
     # attempt to convert document.LocalDocument to str representation
@@ -101,14 +102,14 @@ if __name__ == '__main__':
     ### Queries ###
 
     #result = index.processquery_vector("κομήτης Χάλλεϋ")
-    #result = index.processquery_boolean("Tropical AND (Katarina OR Precursor)")
-    q = "tropical"
-    k=3
-    result = index.processquery_vector(q,k)
-    print("\nResults:")
-    for d in result:
-        print(str(d[0]) + " with: " + str(d[1]))
-        print(type(d[0]))
-    print()
-    print(getsize(index.index))
+    #result = index.processquery_boolean("(not fun) or graph")
+    #q = "tropical"
+    #k=3
+    #result = index.processquery_vector(q,k)
+    #print("\nResults:")
+    #for d in result:
+    #    print(d)
+        #print(str(d[0]) + " with: " + str(d[1]))
+    #print()
+    #print(getsize(index.index))
 
