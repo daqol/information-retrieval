@@ -15,9 +15,10 @@ class InvertedIndex(defaultdict):
         super().__init__(dict)
 
     def add_document(self, d):
-        print("------>>>>>>" + str(type(d)))
+        #print("------>>>>>>" + str(type(d)))
         for term, count in d.tokenize().items():
-            self[term][str(d)] = count
+            self[term][d] = count
+            #self[term][str(d)] = count # -> problem with vector S[d] /= d.L_d
 
 
 class Collection:
