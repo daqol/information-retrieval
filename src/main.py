@@ -67,6 +67,10 @@ if __name__ == '__main__':
     #collection.insert(index.index)
 
 
+    # Print the documents in dict structure
+    print(index.documents_dictsyle)
+
+
     #print(index.documents)
 
     #for key, value in index.index.items():

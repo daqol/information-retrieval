@@ -18,9 +18,9 @@ class InvertedIndex(defaultdict):
         # call tokenize method so we have now the L_d value
         for term, count in d.tokenize().items():
             self[term][d] = count
-            print(d)
-            print(term)
-            print(count)
+            #print(d)
+            #print(term)
+            #print(count)
             #self[term][str(d)] = count # -> problem with vector S[d] /= d.L_d
 
 
@@ -38,8 +38,9 @@ class Collection:
         """
         if d not in self.documents:
             # documents_dictstyle what value to append?
-            self.documents.add(d)
+            self.documents.add(d)  # add *set method*
             self.index.add_document(d)
+            self.documents_dictsyle[str(d)] = d.L_d
             print("Read it: " + str(d), flush=True)
 
 
