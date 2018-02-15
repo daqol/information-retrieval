@@ -67,11 +67,6 @@ if __name__ == '__main__':
     #collection.insert(index.index)
 
 
-    # Print the documents in dict structure
-    print(index.documents_dictsyle)
-
-
-    #print(index.documents)
 
     #for key, value in index.index.items():
     #    print(key)
@@ -87,8 +82,6 @@ if __name__ == '__main__':
 
 
 
-    #a = list(index.index.items())
-    #print(a[0][1].keys())
 
 
     # attempt to convert document.LocalDocument to str representation
@@ -97,23 +90,23 @@ if __name__ == '__main__':
     #        print(key)
     #print(index.index.items())
 
-
-    #with open('data.json', 'w') as fp:
-    #    json.dump(a, fp)
+    a = index.index.inverted
+    with open('data.json', 'w') as fp:
+        json.dump(a, fp)
 
 
 
     ### Queries ###
 
     #result = index.processquery_vector("κομήτης Χάλλεϋ")
-    #result = index.processquery_boolean("(not fun) or graph")
-    #q = "tropical"
-    #k=3
-    #result = index.processquery_vector(q,k)
-    #print("\nResults:")
-    #for d in result:
-    #    print(d)
-        #print(str(d[0]) + " with: " + str(d[1]))
+    #result = index.processquery_boolean("katrina and united or cyclonic")
+    q = "tropical"
+    k=4
+    result = index.processquery_vector(q,k)
+    print("\nResults:")
+    for d in result:
+        #print(d)
+        print(str(d[0]) + " with: " + str(d[1]))
     #print()
     #print(getsize(index.index))
 

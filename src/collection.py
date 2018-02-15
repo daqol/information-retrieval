@@ -13,14 +13,13 @@ class InvertedIndex(defaultdict):
 
     def __init__(self):
         super().__init__(dict)
+        self.inverted = defaultdict(list)
 
     def add_document(self, d):
         # call tokenize method so we have now the L_d value
         for term, count in d.tokenize().items():
             self[term][d] = count
-            #print(d)
-            #print(term)
-            #print(count)
+            self.inverted[term].append(str(d))
             #self[term][str(d)] = count # -> problem with vector S[d] /= d.L_d
 
 
@@ -37,8 +36,6 @@ class Collection:
         :return:
         """
         if d not in self.documents:
-            # documents_dictstyle what value to append?
-            self.documents.add(d)  # add *set method*
             self.index.add_document(d)
             self.documents_dictsyle[str(d)] = d.L_d
             print("Read it: " + str(d), flush=True)
@@ -57,12 +54,17 @@ class Collection:
 
         def rest_documents(documents_set):
             """ Returns set difference between this index's documents and documents_set"""
-            return self.documents - documents_set
+            #return self.documents - documents_set
+            return self.documents_dictsyle.keys() - documents_set
+
+
+
 
         bparser = BooleanExpressionParser(term_documents, rest_documents)
 
         # process query text the same way as a document
         newq = ' '.join(textpreprocess(q))
+
 
         return bparser.eval_query(newq)
 
@@ -80,7 +82,8 @@ class Collection:
         S = defaultdict(float)
 
         for term in q_tokens:
-            idf_t = math.log(1 + len(self.documents) / len(self.index[term]))
+            #idf_t = math.log(1 + len(self.documents) / len(self.index[term]))
+            idf_t = math.log(1 + len(self.documents_dictsyle) / len(self.index[term]))
 
             for d, v in self.index[term].items():
                 S[d] += v * idf_t
