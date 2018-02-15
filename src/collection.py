@@ -3,19 +3,21 @@ import math
 import operator
 from collections import defaultdict
 
-from boolean_expression_parse import BooleanExpressionParser
-from document import textpreprocess
-# from src.boolean_expression_parse import BooleanExpressionParser
-# from src.document import textpreprocess
+
+from src.boolean_expression_parse import BooleanExpressionParser
+from src.document import textpreprocess
 
 
 class InvertedIndex(defaultdict):
+
+
     def __init__(self):
         super().__init__(dict)
 
     def add_document(self, d):
+        print("------>>>>>>" + str(type(d)))
         for term, count in d.tokenize().items():
-            self[term][d] = count
+            self[term][str(d)] = count
 
 
 class Collection:
@@ -32,7 +34,8 @@ class Collection:
         if d not in self.documents:
             self.documents.add(d)
             self.index.add_document(d)
-            print("Read it", flush=True)
+            print("Read it: " + str(d), flush=True)
+
 
     def processquery_boolean(self, q):
         """
@@ -77,6 +80,7 @@ class Collection:
 
         for d, v in S.items():
             S[d] /= d.L_d
+
 
         return heapq.nlargest(top, S.items(), key=operator.itemgetter(1))
 

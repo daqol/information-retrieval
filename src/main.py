@@ -2,11 +2,11 @@
 
 import os
 import sys
+import json
 from collections import Set, Mapping, deque
 from numbers import Number
 
-#from collection import Collection
-#from document import LocalDocument
+
 from src.collection import Collection
 from src.document import LocalDocument
 
@@ -48,13 +48,29 @@ if __name__ == '__main__':
             d = LocalDocument(os.path.join(dirname, filename))
             index.read_document(d)
 
+
     # d = WebDocument('web', 'http://www.csd.auth.gr/el/')
     # text = html2text.html2text(d.open().read().decode('utf-8'))
     # index.read_document(d)
     print('Let\'s go team!')
-    print(index.index.items())
+    #print(index.index.items())
+
+
+    print(index.documents)
+
+    a = list(index.index.items())
+    for i in a:
+        print(i)
+
+    #with open('data.json', 'w') as fp:
+     #   json.dump(a, fp)
+
+
     #result = index.processquery_vector("κομήτης Χάλλεϋ")
     result = index.processquery_boolean("Tropical AND (Katarina OR Precursor)")
+    #q = "tropical"
+    #k=2
+    #result = index.processquery_vector(q,k)
     print("\nResults:")
     for d in result:
         print(d)
