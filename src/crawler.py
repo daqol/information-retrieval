@@ -3,7 +3,7 @@ import sys
 from urllib.error import HTTPError
 from urllib.parse import urljoin
 
-from src.mongo_initials import *
+from mongo_initials import *
 
 from document import WebDocument
 from collection import Collection
