@@ -33,9 +33,31 @@ class InvertedIndex(defaultdict):
 
 
 class Collection:
-    def __init__(self):
+    def __init__(self, mongo_db=None, mongo_collections=None):
+        """
+
+        :param mongo_db: MongoClient object
+        :param mongo_collections: dict with collections: 'invertedIndex' for inverted index collection (will contain
+         term as key and document locations as value and 'documents' for documents collection (will contain document
+         location as key and L_d as value)
+        """
         self.index = InvertedIndex()  # inverted index
         self.documents = dict()  # dict with documents as keys and L_d as values
+        self.mongo_database = mongo_db
+        self.mongo_collections = mongo_collections
+
+    def flush_to_mongo(self):
+        # Transform index and documents in mongo format
+        mindex = [{'term': term, 'docs': [{'doc': doc.location, 'count': count} for doc, count in docs.items()]} for term, docs in self.index.items()]
+        mdocs = [{'doc': doc.location, 'L_d': L_d} for doc, L_d in self.documents.items()]
+
+        # Write the to mongo
+        self.mongo_database[self.mongo_collections['invertedIndex']].insert_many(mindex)
+        self.mongo_database[self.mongo_collections['documents']].insert_many(mdocs)
+
+        # Clear memory
+        self.index.clear()
+        self.documents.clear()
 
     def read_document(self, d):
         """
@@ -46,7 +68,6 @@ class Collection:
         """
         if d not in self.documents:
             self.documents[d] = self.index.add_document(d)
-
 
     def processquery_boolean(self, q):
         """
@@ -70,8 +91,14 @@ class Collection:
 
         return bparser.eval_query(newq)
 
-    def processquery_vector(self, q, top=10):
-
+    def processquery_vector(self, q, above=0.2, top=-1):
+        """
+        Processes a query with the vector model. Based on [chapter4-vector.pdf page 14]
+        :param q: query. Any sentence
+        :param above: lowest limit in similarity of documet and query. Defaults to 0.2
+        :param top: Returns top x documents if is set. Defaults to unlimited (-1)
+        :return: Documents that satisfy the query
+        """
         q_tokens = textpreprocess(q)
 
         # Check if all terms of query are in our collection
@@ -90,5 +117,6 @@ class Collection:
         for d in S.keys():
             S[d] /= self.documents[d]
 
-        return heapq.nlargest(top, S.items(), key=operator.itemgetter(1))
+        S_passed = dict((k, v) for k, v in S.items() if v >= above) if above > 0 else S
+        return S_passed if top < 0 else heapq.nlargest(top, S_passed.items(), key=operator.itemgetter(1))
 

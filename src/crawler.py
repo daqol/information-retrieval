@@ -4,9 +4,12 @@ from urllib.error import HTTPError
 from urllib.parse import urljoin
 import threading
 
+from mongo_initials import *
+
 from src.document import WebDocument
 from src.collection import Collection
 from bs4 import SoupStrainer
+from pymongo import MongoClient
 
 RE_LINKSPLIT = re.compile(r"[?#]")
 
@@ -48,12 +51,14 @@ class Webcrawler:
         c = 0  # DEBUG: counter
         depth = 0
         # Loop till all documents in self.links are read
-        while not all(self.links.values()):
+        while not all(self.links.values()) and c<50:
             print('depth: {}'.format(depth), file=sys.stderr)  # DEBUG
             # Get links which have not been visited
             links_to_visit = [l for l, v in self.links.items() if not v]
             for link in links_to_visit:
                 c += 1
+                if c>50:
+                    break
                 print("\rCount {}".format(c), end='', flush=True)  # DEBUG
                 try:
                     # Create web doc
@@ -91,11 +96,19 @@ class Webcrawler:
 
 
 if __name__ == '__main__':
-    collection = Collection()
+    # mclient = MongoClient()['inforet']
+    # mcolls = {'invertedIndex': 'invertedIndex', 'documents': 'documents'}
+
+    collection = Collection(mdb, mcolls)
     c = Webcrawler()
+    print(collection.__dict__)
+    print(c.__dict__)
     # c.addlink('http://datalab.csd.auth.gr/%7Egounaris/courses/dwdm/index.html')
     c.addlink('http://snf-1510.ok-kno.grnetcloud.net/rick-and-morty-website/')
-    c.crawl(collection=collection, maxdepth=2)
+    c.crawl(collection=collection, maxdepth=-1)
+    collection.flush_to_mongo()
+    mdb[mcolls['invertedIndex']].create_index([('term', HASHED)], background=True)
+    mdb[mcolls['documents']].create_index([('term', HASHED)], background=True)
     # c.crawl(maxdepth=1)
     #"""
     result = collection.processquery_vector("cut short", top=10)

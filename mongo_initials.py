@@ -1,0 +1,10 @@
+# let
+from pymongo import MongoClient, HASHED
+
+session_id = '3842u34h23480'
+
+mdb = MongoClient()['inforet']
+mcolls = {'invertedIndex': 'index' + session_id, 'documents': 'docs' + session_id}
+
+# mdb[mcolls['invertedIndex']].create_index([('term', HASHED)])
+# mdb[mcolls['documents']].create_index([('term', HASHED)])

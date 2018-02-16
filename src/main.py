@@ -7,6 +7,7 @@ import pymongo
 from pymongo import MongoClient
 from collections import Set, Mapping, deque
 from numbers import Number
+from pymongo import MongoClient
 
 
 from src.collection import Collection
@@ -41,7 +42,7 @@ def getsize(obj_0):
 
 if __name__ == '__main__':
     ### Queries ###
-
+    """
     index = Collection()
     directory = 'documents'
 
@@ -62,7 +63,11 @@ if __name__ == '__main__':
     print("\nResults:")
     for d in result:
         #print(d)
-        print(d[0] + " with: " + d[1])
+        print("{} with: {}".format(d[0], d[1]))
     #print()
     #print(getsize(index.index))
+    """
 
+    # MONGO #
+    mongo_connection = MongoClient()
+    mongo_collections = {"invertedIndex": "local1Inverted", "documents": "local1Documents"}
