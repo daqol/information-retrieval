@@ -10,7 +10,7 @@ from numbers import Number
 
 
 from src.collection import Collection
-from src.document import LocalDocument
+from src.document import LocalDocument, WebDocument
 
 zero_depth_bases = (str, bytes, Number, range, bytearray)
 iteritems = 'items'
@@ -18,7 +18,7 @@ iteritems = 'items'
 
 def getsize(obj_0):
     """Recursively iterate to sum size of object & members."""
-    def inner(obj, _seen_ids = set()):
+    def inner(obj, _seen_ids=set()):
         obj_id = id(obj)
         if obj_id in _seen_ids:
             return 0
@@ -40,73 +40,29 @@ def getsize(obj_0):
 
 
 if __name__ == '__main__':
+    ### Queries ###
 
     index = Collection()
-
     directory = 'documents'
 
+    # Read documents
     for (dirname, _, filenames) in os.walk(directory):
         for filename in filenames:
             d = LocalDocument(os.path.join(dirname, filename))
             index.read_document(d)
 
-
-    # d = WebDocument('web', 'http://www.csd.auth.gr/el/')
-    # text = html2text.html2text(d.open().read().decode('utf-8'))
-    # index.read_document(d)
+    d = WebDocument('http://www.csd.auth.gr/el/')
+    index.read_document(d)
     print('Let\'s go team!')
-    #print(index.index.items())
 
-
-
-    ###MongoDB###
-
-    #client = MongoClient('mongodb://localhost:27017/')
-    #db = client.test_irproject
-    #collection = db.inverted_index_collection
-    #collection.insert(index.index)
-
-
-
-    #for key, value in index.index.items():
-    #    print(key)
-    #    for key2, value2 in value.items():
-    #       print(key2)
-
-
-            #post = {key: {str(key2).replace(".","-") : value2 }}
-            #post_id = collection.insert_one(post).inserted_id
-            #print(post)
-            #if str(key2) == 'd1.txt':
-            #    print("Yeap")
-
-
-
-
-
-    # attempt to convert document.LocalDocument to str representation
-    #for value in index.index.values():
-    #    for key, val in value.items():
-    #        print(key)
-    #print(index.index.items())
-
-    a = index.index.inverted
-    with open('data.json', 'w') as fp:
-        json.dump(a, fp)
-
-
-
-    ### Queries ###
-
-    #result = index.processquery_vector("κομήτης Χάλλεϋ")
-    #result = index.processquery_boolean("katrina and united or cyclonic")
+    # Make query
     q = "tropical"
-    k=4
-    result = index.processquery_vector(q,k)
+    k = 4
+    result = index.processquery_vector(q, k)
     print("\nResults:")
     for d in result:
         #print(d)
-        print(str(d[0]) + " with: " + str(d[1]))
+        print(d[0] + " with: " + d[1])
     #print()
     #print(getsize(index.index))
 

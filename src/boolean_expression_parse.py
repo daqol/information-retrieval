@@ -31,6 +31,7 @@ class BooleanExpressionParser:
 
     def eval_query(self, q):
         """
+        Evals query and returns set of documents that satisfy it
         :param q: boolean expression
         :return: result of boolean expression
         """

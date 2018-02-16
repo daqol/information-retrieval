@@ -1,14 +1,10 @@
 import io
-import math
 import re
 import urllib.request
 from abc import abstractmethod
 from collections import Counter
 
-import chardet
-# from html2text import html2text
-
-from bs4 import BeautifulSoup, SoupStrainer
+from bs4 import BeautifulSoup
 from stemming.porter2 import stem
 
 
@@ -73,7 +69,6 @@ class Document:
 
     def __int__(self, location):
         self.location = location
-        self.L_d = 0
 
     def __str__(self):
         return self.location
@@ -104,21 +99,10 @@ class Document:
 
     def tokenize(self):
         """
-        Tokenizes Document text. Text is preprocessed by :func:`textpreprocess`. After the call of this method object
-        will also has property L_d, which is the norm of vector of w as is in [chapter4-vector.pdf page 14].
+        Tokenizes Document text. Text is preprocessed by :func:`textpreprocess`.
         :return: dict with each term in document as a key and its number of appearances as value
         """
-        ans = Counter(textpreprocess(self.read()))
-
-        l_d = 0
-        for v in ans.values():
-            if v == 1:
-                l_d += 1
-            else:
-                l_d += (1 + math.log(v))**2
-        self.L_d = math.sqrt(l_d)
-
-        return ans
+        return Counter(textpreprocess(self.read()))
 
 
 class LocalDocument(Document):
@@ -159,7 +143,6 @@ class WebDocument(Document):
     def read(self):
         soup = self.get_soup()
         return soup.get_text() if soup else None
-        # return html2text(get_unicode_text(self.open()))
 
 
 """
