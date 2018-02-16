@@ -4,8 +4,8 @@ import operator
 from collections import defaultdict
 
 
-from src.boolean_expression_parse import BooleanExpressionParser
-from src.document import textpreprocess
+from boolean_expression_parse import BooleanExpressionParser
+from document import textpreprocess
 
 
 class InvertedIndex(defaultdict):

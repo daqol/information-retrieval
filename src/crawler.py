@@ -2,14 +2,12 @@ import re
 import sys
 from urllib.error import HTTPError
 from urllib.parse import urljoin
-import threading
 
-from mongo_initials import *
+from src.mongo_initials import *
 
-from src.document import WebDocument
-from src.collection import Collection
+from document import WebDocument
+from collection import Collection
 from bs4 import SoupStrainer
-from pymongo import MongoClient
 
 RE_LINKSPLIT = re.compile(r"[?#]")
 

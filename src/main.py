@@ -10,8 +10,8 @@ from numbers import Number
 from pymongo import MongoClient
 
 
-from src.collection import Collection
-from src.document import LocalDocument, WebDocument
+from collection import Collection
+from document import LocalDocument, WebDocument
 
 zero_depth_bases = (str, bytes, Number, range, bytearray)
 iteritems = 'items'

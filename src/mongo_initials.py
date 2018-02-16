@@ -1,6 +1,7 @@
-# let
 from pymongo import MongoClient, HASHED
 
+
+# let
 session_id = '3842u34h23480'
 
 mdb = MongoClient()['inforet']
