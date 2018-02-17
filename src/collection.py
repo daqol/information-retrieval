@@ -43,21 +43,54 @@ class Collection:
         """
         self.index = InvertedIndex()  # inverted index
         self.documents = dict()  # dict with documents as keys and L_d as values
-        self.mongo_database = mongo_db
+        self.mongo_db = mongo_db
         self.mongo_collections = mongo_collections
 
     def flush_to_mongo(self):
         # Transform index and documents in mongo format
-        mindex = [{'term': term, 'docs': [{'doc': doc.location, 'count': count} for doc, count in docs.items()]} for term, docs in self.index.items()]
-        mdocs = [{'doc': doc.location, 'L_d': L_d} for doc, L_d in self.documents.items()]
+        # mindex = [{'term': term, 'docs': [{'doc': doc.location, 'count': count} for doc, count in docs.items()]} for term, docs in self.index.items()]
+
 
         # Write the to mongo
-        self.mongo_database[self.mongo_collections['invertedIndex']].insert_many(mindex)
-        self.mongo_database[self.mongo_collections['documents']].insert_many(mdocs)
+        if self.index and self.documents:
+            # self.mongo_db[self.mongo_collections['invertedIndex']].insert_many(mindex)
+            for term, docs in self.index.items():
+                mdocs = [{'doc': doc.location, 'count': count} for doc, count in docs.items()]
+                self.mongo_db[self.mongo_collections['invertedIndex']].update({'term': term}, {"$push": {"docs": {"$each": mdocs}}}, upsert=True)
+            mdocs = [{'doc': doc.location, 'L_d': L_d} for doc, L_d in self.documents.items()]
+            self.mongo_db[self.mongo_collections['documents']].insert_many(mdocs)
 
         # Clear memory
         self.index.clear()
         self.documents.clear()
+
+    def get_documents_count(self):
+        return self.mongo_db[self.mongo_collections['invertedIndex']].count()
+
+    def get_index_count(self):
+        return self.mongo_db[self.mongo_collections['documents']].count()
+
+    def get_documents_for_term(self, term):
+        ans = self.mongo_db[self.mongo_collections['invertedIndex']].find_one({'term': term}, {'docs': 1})
+        if ans:
+            return ans['docs']
+        else:  # Check if term is in our collection
+            raise Exception("Term '" + term + "' does not exist in our inverted index.")
+
+    def get_only_documents_for_term(self, term):
+        ans = self.mongo_db[self.mongo_collections['invertedIndex']].find_one({'term': term}, {'docs': 1})
+        return set([doc_entry['doc'] for doc_entry in ans['docs']]) if ans else set()
+
+    def get_documents_not_in(self, other_doc_set):
+        ans = self.mongo_db[self.mongo_collections['documents']].find({'doc': {"$nin": list(other_doc_set)}}, {'doc': 1})
+        return set([doc_entry['doc'] for doc_entry in ans]) if ans else set()
+
+    def get_document_L_d(self, doc: str):
+        ans = self.mongo_db[self.mongo_collections['documents']].find_one({'doc': doc}, {'L_d': 1})
+        if ans:
+            return ans['L_d']
+        else:  # Check if doc is in our collection
+            raise Exception("Document '" + doc + "' does not exist in our collection.")
 
     def read_document(self, d):
         """
@@ -76,8 +109,8 @@ class Collection:
         :return: Documents that satisfy the query
         """
         def term_documents(term):
-            """ Returns documents in this index that contain term"""
-            return self.index.get(term, dict()).keys()
+            """ Returns documents in this index that contain term """
+            return self.get_only_documents_for_term(term)
 
         def rest_documents(documents_set):
             """ Returns set difference between this index's documents and documents_set"""
@@ -101,22 +134,17 @@ class Collection:
         """
         q_tokens = textpreprocess(q)
 
-        # Check if all terms of query are in our collection
-        for token in q_tokens:
-            if token not in self.index:
-                raise Exception(token + " does not exist in our collection.")
-
         S = defaultdict(float)
 
         for term in q_tokens:
-            idf_t = math.log(1 + len(self.documents) / len(self.index[term]))
+            idf_t = math.log(1 + self.get_documents_count() / self.get_index_count())
 
-            for d, v in self.index[term].items():
-                S[d] += v * idf_t
+            for doc_entry in self.get_documents_for_term(term):
+                S[doc_entry['doc']] += doc_entry['count'] * idf_t
 
         for d in S.keys():
-            S[d] /= self.documents[d]
+            S[d] /= self.get_document_L_d(d)
 
-        S_passed = dict((k, v) for k, v in S.items() if v >= above) if above > 0 else S
-        return S_passed if top < 0 else heapq.nlargest(top, S_passed.items(), key=operator.itemgetter(1))
+        S_passed = [(k, v) for k, v in S.items() if v >= above] if above > 0 else S.items()
+        return S_passed if top < 0 else heapq.nlargest(top, S_passed, key=operator.itemgetter(1))
 

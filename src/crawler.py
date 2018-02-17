@@ -97,7 +97,35 @@ if __name__ == '__main__':
     # mclient = MongoClient()['inforet']
     # mcolls = {'invertedIndex': 'invertedIndex', 'documents': 'documents'}
 
+    # TESTS #
+
     collection = Collection(mdb, mcolls)
+    '''
+    ans1 = collection.get_documents_for_term('count')
+    ans2 = collection.get_only_documents_for_term('count')
+
+    # ans3 = collection.get_documents_for_term('akalklkal')
+    ans4 = collection.get_only_documents_for_term('cskdjwoiount')
+
+    ans5 = collection.get_documents_not_in({"http://snf-1510.ok-kno.grnetcloud.net/rick-and-morty-website/",
+                                     "http://snf-1510.ok-kno.grnetcloud.net/rick-and-morty-website/SeasonGuide.php",
+                                     "http://snf-1510.ok-kno.grnetcloud.net/rick-and-morty-website/Quiz.php"})
+
+    ans6 = collection.get_document_L_d("http://snf-1510.ok-kno.grnetcloud.net/rick-and-morty-website/Quiz.php")
+    # ans7 = collection.get_document_L_d("http://snf-1510.ok-kno.grnetcloud.net/rick-and-morty-website/Quiz.phpeee")
+    '''
+    '''
+    collection.index['term1'][WebDocument('doc1')] = 3
+    collection.documents[WebDocument('doc1')] = 3
+    # collection.flush_to_mongo()
+    collection.index['term2'][WebDocument('doc2')] = 1
+    collection.documents[WebDocument('doc2')] = 1
+    collection.flush_to_mongo()
+    collection.index['term1'][WebDocument('doc3')] = 5
+    collection.documents[WebDocument('doc3')] = 5
+    collection.flush_to_mongo()
+    '''
+
     c = Webcrawler()
     print(collection.__dict__)
     print(c.__dict__)

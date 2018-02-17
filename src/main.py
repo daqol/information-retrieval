@@ -9,6 +9,7 @@ from collections import Set, Mapping, deque
 from numbers import Number
 from pymongo import MongoClient
 
+from mongo_initials import *
 
 from collection import Collection
 from document import LocalDocument, WebDocument
@@ -42,32 +43,30 @@ def getsize(obj_0):
 
 if __name__ == '__main__':
     ### Queries ###
-    """
-    index = Collection()
+
+    collection = Collection(mdb, mcolls)
     directory = 'documents'
 
     # Read documents
     for (dirname, _, filenames) in os.walk(directory):
         for filename in filenames:
             d = LocalDocument(os.path.join(dirname, filename))
-            index.read_document(d)
+            collection.read_document(d)
 
     d = WebDocument('http://www.csd.auth.gr/el/')
-    index.read_document(d)
+    collection.read_document(d)
+
+    collection.flush_to_mongo()
     print('Let\'s go team!')
 
     # Make query
-    q = "tropical"
+    q = "Πληροφορικής"
     k = 4
-    result = index.processquery_vector(q, k)
+    result = collection.processquery_vector(q, above=0)
     print("\nResults:")
     for d in result:
         #print(d)
         print("{} with: {}".format(d[0], d[1]))
     #print()
     #print(getsize(index.index))
-    """
 
-    # MONGO #
-    mongo_connection = MongoClient()
-    mongo_collections = {"invertedIndex": "local1Inverted", "documents": "local1Documents"}
