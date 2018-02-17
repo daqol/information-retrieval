@@ -114,7 +114,7 @@ class Collection:
 
         def rest_documents(documents_set):
             """ Returns set difference between this index's documents and documents_set"""
-            return self.documents.keys() - documents_set
+            return self.get_documents_not_in(documents_set)
 
         # get a BooleanExpressionParser, which will evaluate the query
         bparser = BooleanExpressionParser(term_documents, rest_documents)
@@ -146,5 +146,5 @@ class Collection:
             S[d] /= self.get_document_L_d(d)
 
         S_passed = [(k, v) for k, v in S.items() if v >= above] if above > 0 else S.items()
-        return S_passed if top < 0 else heapq.nlargest(top, S_passed, key=operator.itemgetter(1))
+        return sorted(S_passed, key=operator.itemgetter(1), reverse=True) if top < 0 else heapq.nlargest(top, S_passed, key=operator.itemgetter(1))
 

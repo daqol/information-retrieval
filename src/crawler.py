@@ -3,11 +3,10 @@ import sys
 from urllib.error import HTTPError
 from urllib.parse import urljoin
 
-from mongo_initials import *
-
-from document import WebDocument
-from collection import Collection
 from bs4 import SoupStrainer
+from collection import Collection
+from document import WebDocument
+from mongo_initials import *
 
 RE_LINKSPLIT = re.compile(r"[?#]")
 
@@ -124,7 +123,7 @@ if __name__ == '__main__':
     collection.index['term1'][WebDocument('doc3')] = 5
     collection.documents[WebDocument('doc3')] = 5
     collection.flush_to_mongo()
-    '''
+    
 
     c = Webcrawler()
     print(collection.__dict__)
@@ -143,3 +142,4 @@ if __name__ == '__main__':
         print(d[0], d[1])
     print()
     #"""
+    '''
