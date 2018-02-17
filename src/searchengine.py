@@ -64,7 +64,7 @@ def process_index_local(args):
             collection.read_document(d)
     collection.flush_to_mongo()
 
-    if args.create_mongo_index:
+    if args.create_mongo_indexes:
         collection.create_mongo_indexes()
 
 
@@ -74,7 +74,7 @@ def process_web_crawl(args):
     crawler.crawl(maxdepth=args.max_depth, collection=collection)
     collection.flush_to_mongo()
 
-    if args.create_mongo_index:
+    if args.create_mongo_indexes:
         collection.create_mongo_indexes()
 
 
@@ -92,13 +92,11 @@ if __name__ == '__main__':
 
     parser_index_local = subparsers.add_parser("index-local", help="Index local documents")
     parser_index_local.add_argument('-D', '--directory', default="documents", help="Directory which contains documents to index. Default: documents")
-    parser_index_local.add_argument('-I', '--create-mongo-indexes', action='store_true', help="If is set a mongoDB index will be created for each collection that will be created after the read of documents.")
     parser_index_local.set_defaults(func=process_index_local)
 
     parser_web_crawl = subparsers.add_parser("web-crawl", help="Crawl the Web. This crawls the web and collects links from sites and indexes every site that has been visited")
     parser_web_crawl.add_argument('-s', '--seed', required=True, nargs='+', help="Initial link(s) for crawl beginning")
     parser_web_crawl.add_argument('-m', '--max-depth', default=-1, help="This is the depth that crawler will reach. Initial links are in depth 0. Links of initial links are in depth 1 and etc. Default: Unlimited (-1)")
-    parser_index_local.add_argument('I', '--create-mongo-indexes', action='store_true', help="If is set a mongoDB index will be created for each collection that will be created after the read of documents.")
     parser_web_crawl.set_defaults(func=process_web_crawl)
 
     parser.add_argument('-H', '--mongo-host', default="localhost", help="MongoDB host. Default: localhost")
@@ -106,6 +104,7 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--mongo-database', default="inforet", help="MongoDB database. Default: inforet")
     parser.add_argument('-i', '--mongo-collection-index', required=True, help="MongoDB collection for inverted index")
     parser.add_argument('-l', '--mongo-collection-docs', required=True, help="MongoDB collection for documents' L_d")
+    parser.add_argument('-I', '--create-mongo-indexes', action='store_true', help="If is set a mongoDB index will be created for each collection that will be created after the read of documents. Valid only for commands: index-local and web-crawl.")
 
     args = parser.parse_args()
     args.func(args)

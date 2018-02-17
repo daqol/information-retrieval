@@ -70,10 +70,10 @@ class Collection:
         self.mongo_db[self.mongo_collections['documents']].create_index([('doc', HASHED)])
 
     def get_documents_count(self):
-        return self.mongo_db[self.mongo_collections['invertedIndex']].count()
+        return self.mongo_db[self.mongo_collections['documents']].count()
 
     def get_index_count(self):
-        return self.mongo_db[self.mongo_collections['documents']].count()
+        return self.mongo_db[self.mongo_collections['invertedIndex']].count()
 
     def get_documents_for_term(self, term):
         ans = self.mongo_db[self.mongo_collections['invertedIndex']].find_one({'term': term}, {'docs': 1})
@@ -140,16 +140,27 @@ class Collection:
         :param top: Returns top x documents if is set. Defaults to unlimited (-1)
         :return: Documents that satisfy the query
         """
+        def tf_t_d(f_t_d):
+            return 1+math.log(f_t_d) if f_t_d > 1 else 1
+
         q_tokens = textpreprocess(q)
 
         # S for Sums. Dict with key a document and value similarity computation
         S = defaultdict(float)
 
-        for term in q_tokens:
-            idf_t = math.log(1 + self.get_documents_count() / self.get_index_count())
+        # N: count of collection documents
+        N = self.get_documents_count()
 
-            for doc_entry in self.get_documents_for_term(term):
-                S[doc_entry['doc']] += doc_entry['count'] * idf_t
+        for term in q_tokens:
+            docs_for_term = self.get_documents_for_term(term)
+            # n_t: Count of documents that contain term
+            n_t = len(docs_for_term)
+
+            # idf_t: inverse frequency of documents for term
+            idf_t = math.log(1 + N / n_t)
+
+            for doc_entry in docs_for_term:
+                S[doc_entry['doc']] += tf_t_d(doc_entry['count']) * idf_t
 
         for d in S.keys():
             S[d] /= self.get_document_L_d(d)
