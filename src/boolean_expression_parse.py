@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from pyparsing import infixNotation, opAssoc, Word, alphanums
 
 

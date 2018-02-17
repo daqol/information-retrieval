@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 import argparse
@@ -51,7 +52,7 @@ def process_search(args):
         collection.processquery_vector(args.query, above=args.above, top=args.top)
     # print("\nResults:")
     for d in result:
-        print(d)
+        print(d)  # TODO: vector model returns list of items
         # print("{} with: {}".format(d[0], d[1]))
 
 
@@ -61,13 +62,20 @@ def process_index_local(args):
         for filename in filenames:
             d = LocalDocument(os.path.join(dirname, filename))
             collection.read_document(d)
-    # collection.flush_to_mongo()
+    collection.flush_to_mongo()
+
+    if args.create_mongo_index:
+        collection.create_mongo_indexes()
 
 
 def process_web_crawl(args):
     collection = get_Collection_from_mongo_initial(args)
     crawler = Webcrawler(args.seed)
     crawler.crawl(maxdepth=args.max_depth, collection=collection)
+    collection.flush_to_mongo()
+
+    if args.create_mongo_index:
+        collection.create_mongo_indexes()
 
 
 if __name__ == '__main__':
@@ -84,11 +92,13 @@ if __name__ == '__main__':
 
     parser_index_local = subparsers.add_parser("index-local", help="Index local documents")
     parser_index_local.add_argument('-D', '--directory', default="documents", help="Directory which contains documents to index. Default: documents")
+    parser_index_local.add_argument('-I', '--create-mongo-indexes', action='store_true', help="If is set a mongoDB index will be created for each collection that will be created after the read of documents.")
     parser_index_local.set_defaults(func=process_index_local)
 
     parser_web_crawl = subparsers.add_parser("web-crawl", help="Crawl the Web. This crawls the web and collects links from sites and indexes every site that has been visited")
     parser_web_crawl.add_argument('-s', '--seed', required=True, nargs='+', help="Initial link(s) for crawl beginning")
     parser_web_crawl.add_argument('-m', '--max-depth', default=-1, help="This is the depth that crawler will reach. Initial links are in depth 0. Links of initial links are in depth 1 and etc. Default: Unlimited (-1)")
+    parser_index_local.add_argument('I', '--create-mongo-indexes', action='store_true', help="If is set a mongoDB index will be created for each collection that will be created after the read of documents.")
     parser_web_crawl.set_defaults(func=process_web_crawl)
 
     parser.add_argument('-H', '--mongo-host', default="localhost", help="MongoDB host. Default: localhost")

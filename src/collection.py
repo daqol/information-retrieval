@@ -1,11 +1,17 @@
+# -*- coding: utf-8 -*-
+
 import heapq
 import math
 import operator
 from collections import defaultdict
+from pymongo import HASHED
 
 
 from boolean_expression_parse import BooleanExpressionParser
 from document import textpreprocess
+
+
+READ_LIMIT_TO_WRITE_TO_MONGO = 100
 
 
 class InvertedIndex(defaultdict):
@@ -47,22 +53,21 @@ class Collection:
         self.mongo_collections = mongo_collections
 
     def flush_to_mongo(self):
-        # Transform index and documents in mongo format
-        # mindex = [{'term': term, 'docs': [{'doc': doc.location, 'count': count} for doc, count in docs.items()]} for term, docs in self.index.items()]
-
-
-        # Write the to mongo
         if self.index and self.documents:
-            # self.mongo_db[self.mongo_collections['invertedIndex']].insert_many(mindex)
+            # Write to mongo
             for term, docs in self.index.items():
                 mdocs = [{'doc': doc.location, 'count': count} for doc, count in docs.items()]
                 self.mongo_db[self.mongo_collections['invertedIndex']].update({'term': term}, {"$push": {"docs": {"$each": mdocs}}}, upsert=True)
             mdocs = [{'doc': doc.location, 'L_d': L_d} for doc, L_d in self.documents.items()]
             self.mongo_db[self.mongo_collections['documents']].insert_many(mdocs)
 
-        # Clear memory
-        self.index.clear()
-        self.documents.clear()
+            # Clear memory
+            self.index.clear()
+            self.documents.clear()
+
+    def create_mongo_indexes(self):
+        self.mongo_db[self.mongo_collections['invertedIndex']].create_index([('term', HASHED)])
+        self.mongo_db[self.mongo_collections['documents']].create_index([('doc', HASHED)])
 
     def get_documents_count(self):
         return self.mongo_db[self.mongo_collections['invertedIndex']].count()
@@ -102,6 +107,9 @@ class Collection:
         if d not in self.documents:
             self.documents[d] = self.index.add_document(d)
 
+            if len(self.index) >= READ_LIMIT_TO_WRITE_TO_MONGO:
+                self.flush_to_mongo()
+
     def processquery_boolean(self, q):
         """
         Processes a query with the boolean model.
@@ -134,6 +142,7 @@ class Collection:
         """
         q_tokens = textpreprocess(q)
 
+        # S for Sums. Dict with key a document and value similarity computation
         S = defaultdict(float)
 
         for term in q_tokens:
@@ -145,6 +154,7 @@ class Collection:
         for d in S.keys():
             S[d] /= self.get_document_L_d(d)
 
+        # Keep only top k and with similarity above lower limit
         S_passed = [(k, v) for k, v in S.items() if v >= above] if above > 0 else S.items()
         return sorted(S_passed, key=operator.itemgetter(1), reverse=True) if top < 0 else heapq.nlargest(top, S_passed, key=operator.itemgetter(1))
 
