@@ -130,7 +130,7 @@ class Collection:
         # process query text the same way as a document (do the same text preprocessing)
         newq = ' '.join(textpreprocess(q))
 
-        return bparser.eval_query(newq)
+        return [(d, 1) for d in bparser.eval_query(newq)]
 
     def processquery_vector(self, q, above=0.2, top=-1):
         """
