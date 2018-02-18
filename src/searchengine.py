@@ -52,7 +52,7 @@ def process_search(args):
         collection.processquery_vector(args.query, above=args.above, top=args.top)
     # print("\nResults:")
     for d in result:
-        print("{}, {}".format(d[0], d[1]))
+        print("{}, {:.2f}".format(d[0], d[1]))
 
 
 def process_index_local(args):
