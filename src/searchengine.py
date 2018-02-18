@@ -51,8 +51,9 @@ def process_search(args):
     result = collection.processquery_boolean(args.query) if args.model == 'boolean' else \
         collection.processquery_vector(args.query, above=args.above, top=args.top)
     # print("\nResults:")
+    similarity_format = "{},{:.2f}" if args.model == 'vector' else "{},{}"
     for d in result:
-        print("{},{:.2f}".format(d[0], d[1]))
+        print(similarity_format.format(d[0], d[1]))
 
 
 def process_index_local(args):
