@@ -58,7 +58,7 @@ class Collection:
             for term, docs in self.index.items():
                 mdocs = [{'doc': doc.location, 'count': count} for doc, count in docs.items()]
                 self.mongo_db[self.mongo_collections['invertedIndex']].update({'term': term}, {"$push": {"docs": {"$each": mdocs}}}, upsert=True)
-            mdocs = [{'doc': doc.location, 'L_d': L_d} for doc, L_d in self.documents.items()]
+            mdocs = [{'doc': str(doc), 'L_d': L_d} for doc, L_d in self.documents.items()]
             self.mongo_db[self.mongo_collections['documents']].insert_many(mdocs)
 
             # Clear memory
@@ -97,6 +97,9 @@ class Collection:
         else:  # Check if doc is in our collection
             raise Exception("Document '" + doc + "' does not exist in our collection.")
 
+    def in_collection(self, d):
+        return d in self.documents or self.mongo_db[self.mongo_collections['documents']].find({'doc': str(d)}, {'_id': 1}).limit(1).count()
+
     def read_document(self, d):
         """
         Reads a document add adds its terms in inverted index. It is also adds documents' L_d in self.documents set
@@ -104,7 +107,7 @@ class Collection:
         :param d:
         :return:
         """
-        if d not in self.documents:
+        if not self.in_collection(d):
             self.documents[d] = self.index.add_document(d)
 
             if len(self.index) >= READ_LIMIT_TO_WRITE_TO_MONGO:
