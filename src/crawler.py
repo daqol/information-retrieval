@@ -17,10 +17,10 @@ class Webcrawler:
     def __init__(self, initial_links=list()):
         # self.links: dict with key each link that has been collected and value True if it has been visited by crawler
         self.links = dict()
-        for l in initial_links:
-            self.addlink(l)
         # bad_lnks: set with links that are not good for indexing and/or link scanning for any reason and they must not be included in any activity
         self.badlinks = set()
+        for l in initial_links:
+            self.addlink(l)
 
     def markvisited(self, link):
         self.links[link] = True

@@ -70,7 +70,7 @@ def process_index_local(args):
 
 def process_web_crawl(args):
     collection = get_Collection_from_mongo_initial(args)
-    crawler = Webcrawler(args.seed)
+    crawler = Webcrawler([l.strip("'\s") for l in args.seed])
     crawler.crawl(maxdepth=args.max_depth, collection=collection)
     collection.flush_to_mongo()
 
@@ -95,8 +95,8 @@ if __name__ == '__main__':
     parser_index_local.set_defaults(func=process_index_local)
 
     parser_web_crawl = subparsers.add_parser("web-crawl", help="Crawl the Web. This crawls the web and collects links from sites and indexes every site that has been visited")
-    parser_web_crawl.add_argument('-s', '--seed', required=True, nargs='+', help="Initial link(s) for crawl beginning")
-    parser_web_crawl.add_argument('-m', '--max-depth', default=-1, help="This is the depth that crawler will reach. Initial links are in depth 0. Links of initial links are in depth 1 and etc. Default: Unlimited (-1)")
+    parser_web_crawl.add_argument('-s', '--seed', required=True, type=str, nargs='+', help="Initial link(s) for crawl beginning")
+    parser_web_crawl.add_argument('-m', '--max-depth', type=int, default=-1, help="This is the depth that crawler will reach. Initial links are in depth 0. Links of initial links are in depth 1 and etc. Default: Unlimited (-1)")
     parser_web_crawl.set_defaults(func=process_web_crawl)
 
     parser.add_argument('-H', '--mongo-host', default="localhost", help="MongoDB host. Default: localhost")
