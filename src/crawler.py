@@ -68,10 +68,11 @@ class Webcrawler:
                         # For each <a> in doc add link to self.links
                         for a in soup.find_all('a', href=True):
                             l = a['href']
-                            if l.startswith('http'):  # absolute links
-                                self.addlink(l)
-                            else:                     # relative links
-                                self.addlink(urljoin(webdoc.location, l))
+                            if not (l[0] == '#' or l.startswith('mailto')):
+                                if l.startswith('http'):  # absolute links
+                                    self.addlink(l)
+                                else:                     # relative links
+                                    self.addlink(urljoin(webdoc.location, l))
                         if collection:
                             collection.read_document(webdoc)
                             # threading.Thread(target=collection.read_document(webdoc)).start()
