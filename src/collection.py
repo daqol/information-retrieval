@@ -56,7 +56,7 @@ class Collection:
         if self.index and self.documents:
             # Write to mongo
             for term, docs in self.index.items():
-                mdocs = [{'doc': doc.location, 'count': count} for doc, count in docs.items()]
+                mdocs = [{'doc': str(doc), 'count': count} for doc, count in docs.items()]
                 self.mongo_db[self.mongo_collections['invertedIndex']].update({'term': term}, {"$push": {"docs": {"$each": mdocs}}}, upsert=True)
             mdocs = [{'doc': str(doc), 'L_d': L_d} for doc, L_d in self.documents.items()]
             self.mongo_db[self.mongo_collections['documents']].insert_many(mdocs)
